@@ -127,6 +127,7 @@ class DbBackuper implements Runnable {
 				System.out.println("(!!) Pocet chyb pri zalohovani: " + errs);
 			}
 		} catch (InterruptedException e) {
+			System.out.println("(!!) Interrupted");
 		}
 	}
 

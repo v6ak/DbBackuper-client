@@ -56,8 +56,7 @@ public class DbBackuperClient {
 						data = false;
 					} else if (args[i].equals("-nodef")) {
 						if (!def) {
-							throw new ArgException(
-									"Duplicitni -nodef na pozici " + (i + 1));
+							throw new ArgException("Duplicitni -nodef na pozici " + (i + 1));
 						}
 						def = false;
 					} else {
