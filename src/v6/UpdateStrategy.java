@@ -1,7 +1,7 @@
 package v6;
 
-public interface UpdateStrategy<T>{
+public interface UpdateStrategy<T> {
 
-  public void modify(T item);
+	public void modify(T item);
 
 }

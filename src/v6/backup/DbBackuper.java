@@ -21,109 +21,131 @@ import java.util.regex.Pattern;
 
 import v6.UpdateStrategy;
 
+class DbBackuper implements Runnable {
 
+	final static String OK_MARK = "-- OK";
 
-class DbBackuper implements Runnable{
-  
-  final static String OK_MARK = "-- OK";
-  
-  final static Pattern TABLE_PATTERN=Pattern.compile("^[a-zA-Z0-9\\-\\_]+$");
-  
-  String urlBase;
-  
-  String pwd;
-  
-  String filePrefix;
-  
-  int errs = 0;
-  
-  boolean backupTableDefinition=true, backupTableData=true;
-  
-  UpdateStrategy<URLConnection> connectionModifer = new UpdateStrategy<URLConnection>(){public void modify(URLConnection c){
-    c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-    //v6.Debug.deb("modifed");
-    try{
-      PrintWriter out= new PrintWriter(c.getOutputStream());
-      try{
-        out.print("password="+URLEncoder.encode(pwd, "utf-8"));
-      }catch(UnsupportedEncodingException e){
-        out.print("sry");
-      };
-      out.close();
-    }catch(IOException e){
-    };
-  }};
-  
-  public DbBackuper(String url, String pwd){
-    urlBase = url;
-    this.pwd = pwd;
-  }
-  
-  public DbBackuper setBackupTableDefinition(boolean v){
-    backupTableDefinition = v;
-    return this;
-  }
-  
-  public DbBackuper setBackupTableData(boolean v){
-    backupTableData = v;
-    return this;
-  }
-  
-  //Modirer<URL> urlModifer = new Modifer()
-  
-  public void run(){
-    {
-      Calendar cal=Calendar.getInstance();
-      ByteArrayOutputStream res=new ByteArrayOutputStream(4+1+2+1+2+1+1+1+2+1+2+1+2+1);
-      PrintWriter wr = new PrintWriter(res, true);
-      wr.format("%04d-%02d-%02d--%02d-%02d-%02d", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH),
-        cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
-      new File(res.toString()).mkdir();
-      filePrefix = res + System.getProperty("file.separator");
-    };
-    List<Thread> thrs = new LinkedList<Thread>();
-    try{
-      HttpURLConnection conn = (HttpURLConnection)new URL(urlBase + "?action=tables").openConnection();
-      conn.setDoInput(true);
-      conn.setDoOutput(true);
-      conn.setRequestMethod("POST");
-      connectionModifer.modify(conn);
-      BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-      String table, lastline="";
-      while ( (table = in.readLine()) != null ) {
-        lastline = table;
-        if( table.equals("") || table.equals(OK_MARK)){
-          continue;
-        };
-        if( !TABLE_PATTERN.matcher(table).matches() ){
-          System.out.println("(!) nazev tabulky '"+table+"' neodpovida formatu.");
-          errs++;
-          continue;
-        };
-        Thread t = new Thread(new TableBackuper(this, urlBase, table));
-        t.start();
-        thrs.add(t);
-      };
-      if( !lastline.equals(OK_MARK) ){
-        System.out.println("(!) vypis tabulek nebyl ziskan uspesne! Zprava:"+lastline);
-        errs++;
-      };
-      in.close();
-    }catch(Exception e){
-      e.printStackTrace();
-    };
-    //Thread t;
-    try{
-      for (Iterator<Thread> it = thrs.iterator(); it.hasNext(); ) {
-      	it.next().join();
-      };
-      if( errs == 0){
-        System.out.println("(++) Zalohovani problehlo vporadku.");
-      }else{
-        System.out.println("(!!) Pocet chyb pri zalohovani: "+errs);
-      };
-    }catch(InterruptedException e){
-    };
-  }
-  
+	final static Pattern TABLE_PATTERN = Pattern
+			.compile("^[a-zA-Z0-9\\-\\_]+$");
+
+	String urlBase;
+
+	String pwd;
+
+	String filePrefix;
+
+	int errs = 0;
+
+	boolean backupTableDefinition = true, backupTableData = true;
+
+	UpdateStrategy<URLConnection> connectionModifer = new UpdateStrategy<URLConnection>() {
+		public void modify(URLConnection c) {
+			c.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded");
+			// v6.Debug.deb("modifed");
+			try {
+				PrintWriter out = new PrintWriter(c.getOutputStream());
+				try {
+					out.print("password=" + URLEncoder.encode(pwd, "utf-8"));
+				} catch (UnsupportedEncodingException e) {
+					out.print("sry");
+				}
+				;
+				out.close();
+			} catch (IOException e) {
+			}
+			;
+		}
+	};
+
+	public DbBackuper(String url, String pwd) {
+		urlBase = url;
+		this.pwd = pwd;
+	}
+
+	public DbBackuper setBackupTableDefinition(boolean v) {
+		backupTableDefinition = v;
+		return this;
+	}
+
+	public DbBackuper setBackupTableData(boolean v) {
+		backupTableData = v;
+		return this;
+	}
+
+	// Modirer<URL> urlModifer = new Modifer()
+
+	public void run() {
+		{
+			Calendar cal = Calendar.getInstance();
+			ByteArrayOutputStream res = new ByteArrayOutputStream(4 + 1 + 2 + 1
+					+ 2 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 2 + 1);
+			PrintWriter wr = new PrintWriter(res, true);
+			wr.format("%04d-%02d-%02d--%02d-%02d-%02d", cal.get(Calendar.YEAR),
+					cal.get(Calendar.MONTH) + 1,
+					cal.get(Calendar.DAY_OF_MONTH), cal
+							.get(Calendar.HOUR_OF_DAY), cal
+							.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+			new File(res.toString()).mkdir();
+			filePrefix = res + System.getProperty("file.separator");
+		}
+		;
+		List<Thread> thrs = new LinkedList<Thread>();
+		try {
+			HttpURLConnection conn = (HttpURLConnection) new URL(urlBase
+					+ "?action=tables").openConnection();
+			conn.setDoInput(true);
+			conn.setDoOutput(true);
+			conn.setRequestMethod("POST");
+			connectionModifer.modify(conn);
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn
+					.getInputStream()));
+			String table, lastline = "";
+			while ((table = in.readLine()) != null) {
+				lastline = table;
+				if (table.equals("") || table.equals(OK_MARK)) {
+					continue;
+				}
+				;
+				if (!TABLE_PATTERN.matcher(table).matches()) {
+					System.out.println("(!) nazev tabulky '" + table
+							+ "' neodpovida formatu.");
+					errs++;
+					continue;
+				}
+				;
+				Thread t = new Thread(new TableBackuper(this, urlBase, table));
+				t.start();
+				thrs.add(t);
+			}
+			;
+			if (!lastline.equals(OK_MARK)) {
+				System.out
+						.println("(!) vypis tabulek nebyl ziskan uspesne! Zprava:"
+								+ lastline);
+				errs++;
+			}
+			;
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		;
+		// Thread t;
+		try {
+			for (Iterator<Thread> it = thrs.iterator(); it.hasNext();) {
+				it.next().join();
+			}
+			;
+			if (errs == 0) {
+				System.out.println("(++) Zalohovani problehlo vporadku.");
+			} else {
+				System.out.println("(!!) Pocet chyb pri zalohovani: " + errs);
+			}
+			;
+		} catch (InterruptedException e) {
+		}
+		;
+	}
+
 }
