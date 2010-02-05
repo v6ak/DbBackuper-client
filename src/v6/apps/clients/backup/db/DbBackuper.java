@@ -114,7 +114,9 @@ class DbBackuper implements Runnable {
 			}
 			in.close();
 		} catch (Exception e) {
+			System.err.println("error: "+e);
 			e.printStackTrace();
+			return;
 		}
 		// Thread t;
 		try {
