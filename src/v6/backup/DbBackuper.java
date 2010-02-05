@@ -50,11 +50,9 @@ class DbBackuper implements Runnable {
 				} catch (UnsupportedEncodingException e) {
 					out.print("sry");
 				}
-				;
 				out.close();
 			} catch (IOException e) {
 			}
-			;
 		}
 	};
 
@@ -89,7 +87,6 @@ class DbBackuper implements Runnable {
 			new File(res.toString()).mkdir();
 			filePrefix = res + System.getProperty("file.separator");
 		}
-		;
 		List<Thread> thrs = new LinkedList<Thread>();
 		try {
 			HttpURLConnection conn = (HttpURLConnection) new URL(urlBase
@@ -106,46 +103,38 @@ class DbBackuper implements Runnable {
 				if (table.equals("") || table.equals(OK_MARK)) {
 					continue;
 				}
-				;
 				if (!TABLE_PATTERN.matcher(table).matches()) {
 					System.out.println("(!) nazev tabulky '" + table
 							+ "' neodpovida formatu.");
 					errs++;
 					continue;
 				}
-				;
 				Thread t = new Thread(new TableBackuper(this, urlBase, table));
 				t.start();
 				thrs.add(t);
 			}
-			;
 			if (!lastline.equals(OK_MARK)) {
 				System.out
 						.println("(!) vypis tabulek nebyl ziskan uspesne! Zprava:"
 								+ lastline);
 				errs++;
 			}
-			;
 			in.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		;
 		// Thread t;
 		try {
 			for (Iterator<Thread> it = thrs.iterator(); it.hasNext();) {
 				it.next().join();
 			}
-			;
 			if (errs == 0) {
 				System.out.println("(++) Zalohovani problehlo vporadku.");
 			} else {
 				System.out.println("(!!) Pocet chyb pri zalohovani: " + errs);
 			}
-			;
 		} catch (InterruptedException e) {
 		}
-		;
 	}
 
 }

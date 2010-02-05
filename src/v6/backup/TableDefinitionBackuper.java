@@ -20,7 +20,6 @@ final class TableDefinitionBackuper extends RequestBackuper {
 		} catch (UnsupportedEncodingException e) {
 			r = "error";
 		}
-		;
 		return r;
 	}
 

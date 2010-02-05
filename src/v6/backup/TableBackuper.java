@@ -19,24 +19,19 @@ class TableBackuper implements Runnable {
 			t1 = new Thread(new TableDataBackuper(dbb, urlBase, table));
 			t1.start();
 		}
-		;
 		if (dbb.backupTableDefinition) {
 			t2 = new Thread(new TableDefinitionBackuper(dbb, urlBase, table));
 			t2.start();
 		}
-		;
 		try {
 			if (t1 != null) {
 				t1.join();
 			}
-			;
 			if (t2 != null) {
 				t2.join();
 			}
-			;
 		} catch (InterruptedException e) {
 		}
-		;
 	}
 
 }

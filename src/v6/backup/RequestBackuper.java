@@ -63,6 +63,7 @@ abstract class RequestBackuper implements Runnable {
 				error();
 			}
 		} catch (Exception e) {
+			System.err.println("(!) IO error");
 			e.printStackTrace();
 		}
 	}
