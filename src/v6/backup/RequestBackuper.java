@@ -35,21 +35,17 @@ abstract class RequestBackuper implements Runnable {
 		// System.out.println("* def: "+table);
 		start();
 		try {
-			@Cleanup
-			BufferedReader in = null;
-			@Cleanup
-			PrintWriter out = null;
 			@Cleanup("disconnect")
 			HttpURLConnection conn = (HttpURLConnection) new URL(urlBase
 					+ getUrlSuffix()).openConnection();
 			conn.setDoInput(true);
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");
-			dbb.connectionModifer.modify(conn);
-			in = new BufferedReader(
-					new InputStreamReader(conn.getInputStream()));
-			out = new PrintWriter(new BufferedWriter(new FileWriter(
-					dbb.filePrefix + getFileName())));// */System.out;
+			dbb.modify(conn);
+			@Cleanup
+			final BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			@Cleanup
+			final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(dbb.filePrefix + getFileName())));
 			String s, lastline = "";
 			while ((s = in.readLine()) != null) {
 				lastline = s;
@@ -63,7 +59,7 @@ abstract class RequestBackuper implements Runnable {
 				error();
 			}
 		} catch (Exception e) {
-			System.err.println("(!) IO error");
+			System.err.println("(!) some error: "+e);
 			e.printStackTrace();
 		}
 	}

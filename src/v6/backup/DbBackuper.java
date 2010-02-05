@@ -19,18 +19,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import v6.UpdateStrategy;
+import lombok.SneakyThrows;
 
 class DbBackuper implements Runnable {
 
 	final static String OK_MARK = "-- OK";
 
-	final static Pattern TABLE_PATTERN = Pattern
+	private final static Pattern TABLE_PATTERN = Pattern
 			.compile("^[a-zA-Z0-9\\-\\_]+$");
 
-	String urlBase;
+	private final String urlBase;
 
-	String pwd;
+	private String pwd;
 
 	String filePrefix;
 
@@ -38,23 +38,16 @@ class DbBackuper implements Runnable {
 
 	boolean backupTableDefinition = true, backupTableData = true;
 
-	UpdateStrategy<URLConnection> connectionModifer = new UpdateStrategy<URLConnection>() {
-		public void modify(URLConnection c) {
-			c.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
-			// v6.Debug.deb("modifed");
-			try {
-				PrintWriter out = new PrintWriter(c.getOutputStream());
-				try {
-					out.print("password=" + URLEncoder.encode(pwd, "utf-8"));
-				} catch (UnsupportedEncodingException e) {
-					out.print("sry");
-				}
-				out.close();
-			} catch (IOException e) {
-			}
-		}
-	};
+	/*private UpdateStrategy<URLConnection> connectionModifer = new UpdateStrategy<URLConnection>() {
+		@Override */
+	@SneakyThrows(UnsupportedEncodingException.class)
+	public void modify(URLConnection c) throws IOException{
+		c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		PrintWriter out = new PrintWriter(c.getOutputStream());
+		out.print("password=" + URLEncoder.encode(pwd, "utf-8"));
+		out.close();
+	}
+	//};
 
 	public DbBackuper(String url, String pwd) {
 		urlBase = url;
@@ -94,7 +87,7 @@ class DbBackuper implements Runnable {
 			conn.setDoInput(true);
 			conn.setDoOutput(true);
 			conn.setRequestMethod("POST");
-			connectionModifer.modify(conn);
+			modify(conn);
 			BufferedReader in = new BufferedReader(new InputStreamReader(conn
 					.getInputStream()));
 			String table, lastline = "";
