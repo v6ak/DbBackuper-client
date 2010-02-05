@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 import lombok.Cleanup;
 
@@ -43,7 +44,7 @@ abstract class RequestBackuper implements Runnable {
 			conn.setRequestMethod("POST");
 			dbb.modify(conn);
 			@Cleanup
-			final BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			final BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), Charset.forName("utf-8")));
 			@Cleanup
 			final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(dbb.filePrefix + getFileName())));
 			String s, lastline = "";
