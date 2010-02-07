@@ -5,10 +5,13 @@ import java.io.UnsupportedEncodingException;
 
 final class TableDataBackuper extends RequestBackuper {
 
-	private String table;
+	private final String table;
 
 	public TableDataBackuper(DbBackuper b, String url, String table) {
 		super(b, url);
+		if (table == null) {
+			throw new NullPointerException("table must not be null");
+		}
 		this.table = table;
 	}
 

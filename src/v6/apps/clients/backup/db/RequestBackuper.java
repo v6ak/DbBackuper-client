@@ -9,18 +9,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import lombok.AccessLevel;
 import lombok.Cleanup;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NonNull;
 
+@Data
 abstract class RequestBackuper implements Runnable {
+	
+	@Getter(AccessLevel.NONE)
+	final @NonNull DbBackuper dbb;
 
-	private String urlBase;
-
-	DbBackuper dbb;
-
-	public RequestBackuper(DbBackuper b, String urlBase) {
-		this.urlBase = urlBase;
-		dbb = b;
-	}
+	@Getter(AccessLevel.NONE)
+	private final @NonNull String urlBase;
 
 	abstract protected String getUrlSuffix();
 

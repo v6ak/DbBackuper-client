@@ -30,7 +30,7 @@ class DbBackuper implements Runnable {
 
 	private final String urlBase;
 
-	private String pwd;
+	private final String pwd;
 
 	String filePrefix;
 
@@ -50,7 +50,13 @@ class DbBackuper implements Runnable {
 	//};
 
 	public DbBackuper(String url, String pwd) {
+		if (url == null) {
+			throw new NullPointerException("url must not be null");
+		}
 		urlBase = url;
+		if (pwd == null) {
+			throw new NullPointerException("pwd must not be null");
+		}
 		this.pwd = pwd;
 	}
 

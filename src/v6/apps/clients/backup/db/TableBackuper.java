@@ -1,16 +1,21 @@
 package v6.apps.clients.backup.db;
 
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NonNull;
+
+@Data
 class TableBackuper implements Runnable {
+	
+	@Getter(AccessLevel.NONE)
+	private final @NonNull DbBackuper dbb;
 
-	String urlBase, table;
-
-	DbBackuper dbb;
-
-	public TableBackuper(DbBackuper b, String url, String table) {
-		urlBase = url;
-		this.table = table;
-		dbb = b;
-	}
+	@Getter(AccessLevel.NONE)
+	private final @NonNull String urlBase;
+	
+	@Getter(AccessLevel.NONE)
+	private final @NonNull String table;
 
 	public void run() {
 		Thread t1 = null, t2 = null;
